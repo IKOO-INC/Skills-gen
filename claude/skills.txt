@@ -1,0 +1,8 @@
+{
+  hyper_params: [
+    '2d animation',
+    'reels animation',
+    'islamic character',
+    'inside religious',
+  ]
+}
