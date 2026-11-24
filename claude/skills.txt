@@ -1,8 +1,55 @@
-{
-  hyper_params: [
-    '2d animation',
-    'reels animation',
-    'islamic character',
-    'inside religious',
-  ]
-}
+Buatkan skill baru bernama /reels untuk membuat video Reels Instagram bertema cerita dengan sistem HTML dirender menjadi MP4.
+
+FORMAT PEMANGGILAN
+/reels [prompt]
+
+Isi [prompt] bisa berupa:
+1. Judul tema saja (contoh: /reels Kisah Pedagang Kopi yang Pantang Menyerah) → storyboard dan naskah dibuat sendiri oleh skill.
+2. Judul tema + storyboard/naskah dari saya → jalankan PERSIS sesuai storyboard. Jangan menambah, mengurangi, atau mengubah isi scene dan narasi. Storyboard dianggap sudah benar, langsung produksi (build, cek, render final) tanpa menunggu konfirmasi "lanjut".
+
+SPESIFIKASI VIDEO
+- Rasio 9:16, resolusi 1080 x 1920 px, 30 fps
+- Durasi MAKSIMAL 40 detik (target 30–40 detik). Jika storyboard melebihi 40 detik, padatkan durasi tiap scene secara proporsional sampai total ≤ 40 detik, jangan potong isi cerita
+- Output: file .mp4 (H.264, yuv420p) agar langsung bisa diunggah ke Instagram Reels
+- Konten tidak boleh menyentuh area aman UI Instagram: sisakan margin ±250 px di bawah (caption/tombol) dan ±150 px di atas, margin samping ±60 px
+
+STRUKTUR CERITA
+1. HOOK (0–3 detik): kalimat pembuka yang membuat penonton berhenti scroll
+2. JUDUL TEMA: tampil di awal (±1,5–3 detik) sebagai title card besar dengan animasi masuk yang kuat. Judul harus sama persis dengan judul tema dari prompt
+3. ISI CERITA (konflik → perjalanan → titik balik): 4–6 scene, tiap scene 4–8 detik
+4. PENUTUP/PESAN (3–5 detik): kesimpulan atau pesan moral singkat
+5. END CARD (2–3 detik): logo/watermark dan ajakan singkat (follow/simpan)
+
+ATURAN STORYBOARD
+Sebelum membuat HTML, tulis storyboard dalam tabel: No scene | Durasi | Visual | Teks di layar | Narasi | Transisi. Total durasi harus ≤ 40 detik. Teks di layar: maksimal 2 baris dan 8–10 kata per scene supaya terbaca cepat.
+
+GAYA VISUAL
+- Tipografi tebal dan besar, kontras tinggi, mudah dibaca di layar HP. Gunakan font sans-serif modern (Inter/Poppins/Plus Jakarta Sans)
+- Teks muncul per kata atau per baris (kinetic typography) dengan sinkronisasi ke narasi
+- Visual tiap scene dibuat dari SVG, bentuk, ikon, dan ilustrasi flat buatan sendiri; jangan memakai gambar eksternal berhak cipta
+- Background bergradasi halus yang berganti mengikuti suasana cerita (hangat saat sedih/berjuang, cerah saat titik balik)
+- Animasi: kurva easing halus (cubic-bezier), bounce ringan saat teks masuk, parallax lembut, zoom perlahan di tiap scene supaya tidak statis
+- Transisi antar-scene: fade, slide, atau zoom cepat (≤ 0,5 detik)
+- Subtitle/caption dari narasi tampil di tengah-bawah dengan highlight kata yang sedang diucapkan
+- Pakai logo watermark kecil di pojok yang aman, dan end card di akhir
+
+AUDIO (opsional, aktifkan bila tersedia)
+- Voice-over dari narasi jika ada alat TTS; jika tidak, video dibuat tanpa suara dengan teks sebagai pengganti
+- Musik latar lembut bervolume rendah, bebas hak cipta
+
+PROSES KERJA
+1. Baca prompt, tentukan judul tema
+2. Tulis/ambil storyboard dan hitung total durasi (≤ 40 detik)
+3. Bangun satu file HTML dengan timeline animasi berbasis waktu (tiap scene punya waktu mulai-selesai yang pasti)
+4. Cek: durasi total, teks tidak terpotong, tidak keluar dari safe area, animasi berjalan mulus
+5. Render ke MP4 frame-by-frame (headless browser + ffmpeg) agar halus dan tidak patah
+6. Cek hasil MP4: durasi ≤ 40 detik, rasio 1080x1920, file bisa diputar
+7. Serahkan file MP4 final (dan kirim/unggah ke folder tujuan jika sudah terhubung)
+
+LARANGAN
+- Jangan melebihi 40 detik
+- Jangan mengubah storyboard yang sudah diberikan
+- Jangan menampilkan teks terlalu panjang dalam satu scene
+- Jangan memakai gambar, musik, atau font berlisensi yang tidak jelas
+
+Setelah skill dibuat, konfirmasi dengan: nama skill, format pemanggilan, dan contoh pemakaian.
