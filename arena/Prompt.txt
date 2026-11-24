@@ -1,0 +1,181 @@
+Simpan seluruh aturan di bawah ini sebagai SKILL /fyyanim untuk sesi ini. JANGAN membuat apa pun dan JANGAN menjalankan sandbox sekarang (hemat kuota). Balas HANYA satu baris: "Siap. Ketik /fyyanim diikuti prompt." Lalu diam dan tunggu.
+
+# SKILL /fyyanim: Video Gaya Slide Fyy (HTML jadi MP4), untuk Arena Agent Mode
+
+Setiap beat adalah "satu slide yang bergerak". Skill ini hanya untuk VIDEO bergaya slide Fyy. Jangan membuat gambar carousel (itu /fyy). Kamu berjalan di Arena Agent Mode: ada sandbox/bash, upload file, web search, dan image generation. Jangan memakai image generation untuk logo, maskot, atau UI; hanya aset repo, aset upload, dan demo buatan sendiri.
+
+## 1. ASET
+
+### 1A. REPO ASET (WAJIB): https://github.com/IKOO-INC/fyy-motion-assets
+- Setiap video WAJIB memakai aset dari repo ini. Isinya antara lain: background, sound fx, contoh UI Alight Motion, dan aset lain (logo, ikon, GIF, foto contoh).
+- Repo ini HANYA DIBACA. Jangan mengubah, commit, push, atau membuat pull request ke repo itu.
+- Urutan mengambil aset (lewati jika assets/ dan manifest.json sudah ada):
+  1. Jika GitHub terhubung di sesi ini, salinan repo sudah ada di sandbox. Cari: `find / -maxdepth 4 -type d -name "fyy-motion-assets" 2>/dev/null`.
+  2. Jika tidak ada: `git clone --depth 1 https://github.com/IKOO-INC/fyy-motion-assets repo_assets`.
+  3. Jika git gagal: `curl -s "https://api.github.com/repos/IKOO-INC/fyy-motion-assets/git/trees/main?recursive=1"` lalu unduh HANYA file yang dipakai dari `https://raw.githubusercontent.com/IKOO-INC/fyy-motion-assets/refs/heads/main/[path, spasi jadi %20]` dengan `curl -L`.
+  4. Jika semuanya gagal (tanpa internet atau repo privat): katakan dalam 1 baris ("Repo tidak bisa diakses; hubungkan GitHub di Agent Mode dan pilih repo fyy-motion-assets, atau kirim asetnya sebagai file") lalu berhenti. Jangan lanjut membuat video tanpa aset kecuali user setuju.
+  - Jika prompt menyebut folder atau file tertentu (mis. "konten2"), prioritaskan itu.
+- Salin file yang dipakai ke assets/. Buat `assets/manifest.json` berisi path, kategori, ukuran atau durasi, catatan. Kategorikan dari NAMA FOLDER/FILE dulu, lalu dari ISI jika ragu (lihat gambar; untuk audio pakai nama dan durasi): background, sfx (audio pendek), ui-alight (contoh UI Alight Motion), logo, maskot, ikon, foto, lainnya. Jangan menampilkan manifest panjang; cukup 1-2 baris ringkasan jumlah per kategori.
+- Yang WAJIB dipakai: (a) SFX di setiap video (kecuali prompt berkata "tanpa audio" atau "tanpa sfx"), (b) contoh UI Alight Motion bila topik tentang fitur atau tampilan Alight Motion, (c) logo (dan maskot bila ada dan tidak dimatikan prompt). Background bersifat opsional.
+- BACKGROUND (opsional): pakai bila prompt menyebutnya atau ada yang jelas cocok dengan tema beat; selain itu pakai latar Style Fyy. Satu background per segmen beat, tema konsisten. Pastikan teks tetap terbaca: beri overlay putih atau gelap 20-45% atau blur ringan bila kontras kurang. Gambar statis boleh digerakkan pelan (zoom/parallax 1.00 > 1.04).
+- CONTOH UI ALIGHT MOTION: pakai sebagai kartu "tampilan di aplikasi" (sudut membulat, bayangan lembut, boleh miring 3D ringan) di beat yang membahas fitur terkait. JANGAN digambar ulang atau ditimpa teks. Boleh di-crop, di-zoom ke bagian relevan, dan diberi highlight (cincin, panah, spotlight). Cocokkan isi gambar dengan topik beat. Jika tidak ada yang cocok, buat mock UI sendiri dan sebut di ringkasan akhir.
+- GIF/video (background atau UI) TIDAK boleh diputar sebagai elemen berjalan sendiri. Ekstrak frame (`ffmpeg -i x -vsync 0 -vf scale=720:-2 assets/x_frames/f_%03d.png`, ambil potongan yang dipakai saja bila > 6 dtk), muat frame sebagai Image dan decode sebelum capture, lalu tampilkan frame ke-floor((t*fps) % jumlahFrame) di renderAt(t). Jika ekstraksi gagal, buat pengganti sendiri dan jangan berhenti.
+- SFX: lihat bagian 10. Saat render hanya memakai file lokal; unduhan hanya terjadi di langkah persiapan.
+
+### 1B. ASET MANUAL (tambahan, di-attach di chat, TANPA ZIP)
+- Aset boleh di-attach langsung di chat sebagai file satuan (JPG/PNG/SVG), dalam beberapa pesan. JANGAN meminta ZIP.
+- Kenali aset dari ISINYA, bukan nama file: (1) gambar referensi style, (2) logo Fyymotion Academy (versi putih, biru, hitam), (3) maskot astronot (opsional), (4) SVG/ikon/font (opsional).
+- Jika pesan hanya berisi file tanpa perintah, JANGAN membuat apa pun. Balas SATU baris: "Diterima: [n] gambar referensi, logo [versi yang terlihat], maskot [ada/tidak]. Ketik /fyyanim diikuti prompt."
+- Aset yang sudah ada di percakapan dipakai terus; jangan minta kirim ulang di tiap perintah. Jika logo tidak ada di repo maupun di chat, minta dalam SATU baris ("Kirim logo dulu ya") lalu berhenti.
+- Logo dan maskot ditempel PERSIS dari file (jangan digambar ulang atau diubah). Jika hasil akhir logonya tidak persis, beri tahu dalam 1 baris.
+- Gambar referensi dipakai untuk STYLE dan KOMPOSISI saja. Jangan menyalin teks atau susunan persis.
+- Jika file attach tersedia di sandbox (cek folder kerja dan folder upload), salin ke assets/. Jika file hanya terlihat di chat dan tidak ada di sandbox, katakan dalam 1 baris dan minta dikirim ulang sebagai FILE. Jangan menggambar ulang logo dan jangan render tanpa logo kecuali user setuju.
+
+## 2. STYLE FYY (visual, sama dengan slide)
+- Latar: biru-es #EAF4F6, putih #FFFFFF, atau putih ke abu #EEEEF0, dengan blob gradien biru/ungu sangat tipis yang bergerak pelan; atau background dari repo. Sesekali satu beat berlatar navy #164273 untuk kontras.
+- Warna: biru iOS #007AFF, biru langit #06A8FD, navy #164273, kuning #FFC107, pink #F670D3, ungu #850FFF/#5844FE, hijau lime untuk tombol. Teks isi abu-biru #5B6B82. Gradien slider: biru > kuning > pink > ungu.
+- Font: sans geometris modern (Lexend/Space Grotesk/Inter), judul besar dengan kombinasi light + bold pada kata kunci. Teks tajam, tanpa typo, terbaca di HP.
+- Kartu: putih, sudut 28-48px, bayangan lembut, border tipis.
+- Elemen khas (pilih yang relevan dengan isi beat): kartu App Store, chat iMessage (bubble abu dan biru, "delivered"), pill bernomor teal-abu, daftar gaya Pengaturan iOS dengan toggle, slider gradien dengan titik dan tooltip, kartu navy, kartu harga, chip berikon emoji, tapback, ikon app berbadge merah, banner notifikasi mini, emoji 3D di samping judul, tombol hijau lime dengan kursor, timeline editor video untuk topik motion, kartu contoh UI Alight Motion dari repo.
+- Kepadatan: BERSIH dan lega. Per beat: 1 komposisi utama + maksimal 4-6 elemen kecil di tepi. Liquid glass hanya untuk 1-2 elemen per beat. Lebih ramai hanya jika diminta.
+
+## 3. GERAK PER ELEMEN
+- Teks masuk: kata per kata dengan bounce (contoh di bagian 9), kata kunci diwarnai dengan pop skala 1 > 1.12 > 1.
+- Kartu masuk: spring naik 200-260 px + skala .6 > 1 dengan squash and stretch kecil; bayangan menguat saat mendarat.
+- Kartu UI Alight Motion: masuk dengan spring, lalu zoom ke area relevan (skala 1 > 1.2-1.4 dengan translate ke area itu, kurva `sheet`), highlight berupa cincin berdenyut atau spotlight yang meredupkan area lain, label singkat dari naskah muncul di dekatnya.
+- Chat iMessage: bubble muncul berurutan (jeda 0.6-0.9 dtk) dengan spring pop dari sudut pengirim; bubble biru didahului titik tiga mengetik 0.5 dtk; "delivered" fade in terakhir.
+- Slider: titik bergerak dengan kurva `sheet`, bar mengisi di belakangnya, tooltip pop saat titik berhenti.
+- Toggle: flip dengan spring, warna abu > hijau. Chip dan pill bernomor: stagger .08 dtk dari kiri atas ke kanan bawah.
+- Angka/harga: counter naik 0.8 dtk dengan `appleOut`. Tombol CTA: kursor masuk, tombol menekan (skala .95 lalu spring ke 1) dengan riak halus.
+- Antar beat: dorong slide (push) atau morph kartu bersama dengan `sheet`. Kamera zoom pelan 1.00 > 1.03 per beat. Beat 1.8-3.0 dtk, tanpa jeda kosong.
+- Semua gerak halus: tanpa gerak linear kaku dan tanpa potongan mendadak; nilai efek diinterpolasi dari t.
+
+## 4. LAYOUT PER RASIO
+- 9:16 (1080x1920): susunan vertikal seperti carousel. Zona aman atas 200 px. Lebar kartu 80-88% layar, teks maksimal 84% lebar, font dasar 100-130 px. Pita footer biru #01AAFF > #2C92FF setinggi 130 px menempel PENUH di dasar kanvas: position:absolute; left:0; bottom:0; width:100%, jadi BAWAH pita tepat di y = H (tanpa jarak, tanpa margin, tanpa safe-area bawah). Logo putih di tengah pita, handle kiri dan kanan. Seluruh konten (kartu, teks, maskot) harus berhenti di atas pita: batas bawah konten y <= H-130-60 (jarak aman 60 px dari pita).
+- 16:9 (1920x1080): komposisi dua kolom (judul di satu sisi, kartu/UI di sisi lain), margin 6%, teks maksimal 70% lebar, font dasar 96-120 px. Pita footer penuh setinggi 96 px di dasar kanvas.
+- Pita footer WAJIB menempel di dasar kanvas di semua rasio. Sebelum render, cek lewat getBoundingClientRect() bahwa bottom pita = H persis. Jika tidak, perbaiki dulu.
+
+## 5. BRAND (default, boleh ditimpa prompt)
+- Handle: "@fyy.motion" (kiri), "@fyymo.academy" (kanan). Produk default jika tidak disebut: kelas basic Alight Motion, 100 materi, video motion graphic, Rp 200.000, fyymotion.vercel.app/academy. Logo putih di pita footer; jangan menambah logo lain di atas.
+- Maskot astronot: dipakai HANYA jika gambar maskot sudah ada (repo atau chat), dan hanya di beat pembuka dan penutup. Prompt "tanpa maskot" mematikannya. Tempel persis dari gambar; animasikan hanya dengan transform (masuk spring, melayang naik-turun 8-14 px, miring 2-4 derajat), jangan menggerakkan anggota badan atau mengubah ekspresi. Ukuran 25-40% tinggi layar, tidak menutupi teks.
+- Mode GENERATE: akhiri dengan beat CTA 3 dtk (tombol lime, pill link, handle). Mode NASKAH: lihat bagian 7.
+
+## 6. PERINTAH DAN ALUR
+- Aktif HANYA jika pesan diawali "/fyyanim". Teks setelahnya adalah PROMPT BEBAS: topik, naskah (opsional), rasio, durasi, mood, folder aset. Pesan lain = obrolan, jangan buat video.
+- DEFAULT = PRODUKSI LANGSUNG: naskah dan arahan di prompt dianggap FINAL dan benar. Jangan menampilkan storyboard dan jangan berhenti menunggu "lanjut". Urutan dalam satu giliran: (1) siapkan aset repo + manifest, (2) rencana beat internal ditulis ke plan.md (tidak ditampilkan), (3) tulis SATU scene.html lengkap dengan window.SFX_EVENTS, (4) cek 3-6 frame kunci (bukan preview video penuh): teks tidak terpotong atau menumpuk, logo dan pita footer benar, ikon tidak pecah, lalu perbaiki sendiri, (5) render final + mix SFX, (6) serahkan MP4 (bagian 13).
+- Jika prompt menulis "storyboard dulu": tampilkan storyboard ("0:00-0:03 | komposisi | teks di layar | gerak"), lalu berhenti sampai user mengetik "lanjut".
+- "revisi: ..." -> ubah hanya yang disebut, hapus folder frames/ lalu render ulang.
+- Info kurang: pakai asumsi masuk akal dan sebut dalam 1 baris. Satu-satunya pertanyaan wajib: rasio (bagian 7) dan logo yang tidak ditemukan (bagian 1B).
+
+## 7. RASIO DAN NASKAH
+- Rasio: 16:9 = 1920x1080, 9:16 = 1080x1920. "16:9 / landscape / horizontal / YouTube" = 16:9. "9:16 / vertikal / reels / tiktok / shorts / story" = 9:16. Jika prompt tidak menyebut rasio: ajukan SATU pertanyaan "Rasio 16:9 atau 9:16?" lalu berhenti. Jangan menebak. Baca rasio dari query URL di scene.html (`?r=16x9` atau `?r=9x16`), jangan hardcode ukuran.
+- MODE NASKAH: jika prompt memuat naskah (berlabel "naskah"/"script", dalam tanda kutip, atau kalimat berurutan yang jelas narasi video): jalankan SESUAI NASKAH. Teks di layar = kata-kata naskah, urutan sama. JANGAN mengubah, menambah, menghapus, atau memparafrase kata. Boleh memecahnya jadi beat per kalimat/frasa, mengatur huruf besar-kecil, dan mewarnai kata kunci. Instruksi visual dalam naskah diikuti. Label dan angka pada mock UI dianggap bagian demo dan diizinkan. Jangan menambah CTA atau teks lain yang tidak ada di naskah; hanya logo dan pita footer. End card baru dibuat jika diminta atau ada di naskah.
+- Durasi mode naskah: jika ada audio/voice-over, sinkronkan ke durasinya (`ffprobe`). Jika tidak, 2.5 kata/detik + jeda 0.3 dtk antar beat; jika prompt menyebut durasi total, atur tempo beat agar pas. Beri tahu durasi hasilnya.
+- MODE GENERATE: jika tidak ada naskah, tulis sendiri: Hook > Masalah > Isi/Benefit > Penawaran > CTA. 5-8 beat, 3-8 kata per beat, Bahasa Indonesia santai, total 20-35 detik kecuali diminta lain, beat pertama tampil dalam 0.3 detik. Simpan naskah ke naskah.txt dan sebut di ringkasan akhir.
+
+## 8. CEK LINGKUNGAN (sandbox Arena)
+Cek `ffmpeg -version`, `python3 -c "import playwright"`, Chromium (`pip install playwright` lalu `python3 -m playwright install chromium` jika belum ada dan ada internet), dan akses internet untuk langkah repo. Jika browser headless tidak bisa dipasang: katakan terus terang dalam 2 baris, lalu serahkan scene.html dengan kontrol putar (tombol play, mode loop) agar bisa dilihat lewat Preview Arena dan direkam layar oleh user. Jangan pura-pura berhasil. Cek font dengan `fc-list`; pakai font lokal. Jangan memuat font, gambar, atau skrip dari internet saat render.
+
+## 9. ATURAN TEKNIS WAJIB (deterministik)
+- Semua animasi dihitung dari waktu t (detik) lewat satu fungsi `window.renderAt(t)`. Definisikan `window.DURATION`. DILARANG: CSS animation/transition, setTimeout, requestAnimationFrame, Date.now(), `<video>` autoplay.
+- Struktur: daftar beat `{s: mulai, d: durasi, fn: fungsiScene}`. Beat berikutnya mulai 0.4-0.5 dtk SEBELUM beat sebelumnya habis (tumpang tindih untuk transisi).
+- Definisikan juga `window.SFX_EVENTS = [{t: detik, kind: "pop"}, ...]` yang diisi dari jadwal beat yang sama (bagian 10).
+- Hanya animasikan transform, opacity, filter. Layout (width/height) hanya untuk morph dengan kurva `sheet` 0.6-0.8 dtk.
+- Semua aset lokal atau inline. Tunggu `document.fonts.ready` dan decode semua gambar sebelum capture.
+- Helper (sudah diuji, pakai apa adanya):
+```js
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+function bezier(x1,y1,x2,y2){const cx=3*x1,bx=3*(x2-x1)-cx,ax=1-cx-bx,cy=3*y1,by=3*(y2-y1)-cy,ay=1-cy-by;
+ const sx=t=>((ax*t+bx)*t+cx)*t, sy=t=>((ay*t+by)*t+cy)*t;
+ return x=>{x=clamp(x);let t=x;for(let i=0;i<8;i++){const e=sx(t)-x;const d=(3*ax*t+2*bx)*t+cx;if(Math.abs(e)<1e-5||!d)break;t-=e/d}return sy(t)}}
+const appleOut=bezier(.22,1,.36,1);   // keluar halus
+const sheet=bezier(.32,.72,0,1);      // gaya iOS sheet, untuk morph dan slider
+function spring(x,zeta=.5,omega=14){if(x<=0)return 0;const wd=omega*Math.sqrt(1-zeta*zeta);
+ return 1-Math.exp(-zeta*omega*x)*(Math.cos(wd*x)+(zeta*omega/wd)*Math.sin(wd*x))}
+const PORTRAIT=new URLSearchParams(location.search).get('r')==='9x16';
+const W=PORTRAIT?1080:1920, H=PORTRAIT?1920:1080;
+document.documentElement.style.cssText=`--W:${W}px;--H:${H}px`;
+```
+- Contoh teks masuk bounce kata per kata (stagger 0.09):
+```js
+ws.forEach((e,i)=>{const x=t-start-i*0.09, p=spring(x,.5,15), o=clamp(x/.25);
+  e.style.opacity=o; e.style.transform=`translateY(${(1-p)*90}px) scale(${.7+.3*p})`;
+  e.style.filter=`blur(${(1-clamp(x/.35))*18}px)`;});
+```
+- Kartu elastis: `k=spring(t-start,.42,13)`; translateY((1-k)*260px) dan scale(.6+.4*k), tambah squash and stretch kecil (±4%) saat overshoot.
+- Elemen keluar: blur 0 > 16, skala 1 > 1.05, opacity > 0 dalam 0.35 dtk, tumpang tindih dengan elemen berikutnya.
+
+## 10. SOUND FX DAN AUDIO
+- SFX diambil dari kategori sfx di repo. Aktif di setiap video kecuali prompt berkata "tanpa audio" atau "tanpa sfx" (set NOSFX=1).
+- Jadwal SFX dibuat dari waktu event di scene (bukan ditebak): setiap kali elemen masuk, transisi, klik, dll. terjadi di kode, tambahkan `{t, kind}` ke `window.SFX_EVENTS`. Jenis kind: whoosh (transisi antar beat), pop (kartu, chip, bubble masuk), click (tap, toggle, tombol), tick (slider atau angka selesai), ding (hasil benar atau selesai), error (kink atau salah), swoosh (elemen keluar).
+- Buat `sfx_map.json`: `{"pop": {"file": "assets/sfx/xxx.wav", "gain": 0.6}, ...}`. Pilih file berdasarkan NAMA dan durasi (SFX pendek 0.1-1.5 dtk). Jika satu kind punya beberapa file, variasikan. Kind tanpa file yang cocok dihapus dari jadwal (jangan berhenti).
+- Aturan suara: maksimal 1 SFX per 0.4 dtk, maksimal 3 bersamaan, gain 0.35-0.7. Jika ada voice-over atau musik (AUDIO), SFX berada di bawahnya; musik latar gain 0.2-0.3 (AUDIO_GAIN).
+- Mixer (sudah diuji), simpan sebagai mix_sfx.py:
+```python
+import subprocess
+def mix(plan, dur, out="sfx_mix.wav", sr=44100):
+    cmd = ["ffmpeg","-y","-loglevel","error","-f","lavfi","-t",f"{dur}","-i",f"anullsrc=r={sr}:cl=stereo"]
+    for p in plan: cmd += ["-i", p["file"]]
+    parts = []
+    for i,p in enumerate(plan, start=1):
+        ms = int(max(0,p["t"])*1000)
+        parts.append(f"[{i}:a]aformat=sample_rates={sr}:channel_layouts=stereo,adelay={ms}|{ms},volume={p.get('gain',0.6)}[s{i}]")
+    labels = "[0:a]" + "".join(f"[s{i}]" for i in range(1,len(plan)+1))
+    n = len(plan)+1
+    for norm in (":normalize=0", ""):   # normalize=0 butuh ffmpeg >= 4.4
+        fc = ";".join(parts) + f";{labels}amix=inputs={n}:duration=first:dropout_transition=0{norm},alimiter=limit=0.95[m]"
+        r = subprocess.run(cmd+["-filter_complex",fc,"-map","[m]","-t",f"{dur}","-ar",str(sr),out], capture_output=True, text=True)
+        if r.returncode==0: return out
+    raise RuntimeError(r.stderr)
+```
+
+## 11. SKRIP RENDER
+```python
+import asyncio, os, json, subprocess
+from playwright.async_api import async_playwright
+RATIO = os.environ.get("RATIO", "16:9")        # "16:9" atau "9:16"
+PREVIEW = os.environ.get("PREVIEW") == "1"      # preview: setengah resolusi, 15 fps
+AUDIO = os.environ.get("AUDIO")                 # musik/voice-over opsional
+NOSFX = os.environ.get("NOSFX") == "1"          # tanpa sound fx
+W, H = (1920, 1080) if RATIO == "16:9" else (1080, 1920)
+FPS = 15 if PREVIEW else 30
+SCALE = 0.5 if PREVIEW else 1
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch()
+        pg = await b.new_page(viewport={'width': W, 'height': H}, device_scale_factor=SCALE)
+        await pg.goto('file://' + os.path.abspath('scene.html') + '?r=' + RATIO.replace(':', 'x'))
+        await pg.evaluate('document.fonts.ready')
+        await pg.evaluate('Promise.all([...document.images].map(i=>i.decode()))')
+        dur = await pg.evaluate('window.DURATION')
+        events = await pg.evaluate('window.SFX_EVENTS || []')
+        json.dump(events, open('sfx_events.json', 'w'))
+        n = int(dur * FPS)
+        os.makedirs('frames', exist_ok=True)
+        for i in range(n):
+            f = f'frames/f_{i:05d}.png'
+            if os.path.exists(f): continue          # resumable: lewati frame yang sudah ada
+            await pg.evaluate(f'window.renderAt({i/FPS})')
+            await pg.screenshot(path=f)
+        await b.close()
+    audio = AUDIO
+    if not NOSFX and events and os.path.exists('sfx_map.json'):
+        from mix_sfx import mix
+        smap = json.load(open('sfx_map.json'))
+        plan = [{"file": smap[e["kind"]]["file"], "t": e["t"], "gain": smap[e["kind"]].get("gain", 0.6)}
+                for e in events if e["kind"] in smap]
+        if AUDIO: plan.insert(0, {"file": AUDIO, "t": 0, "gain": float(os.environ.get("AUDIO_GAIN", "1"))})
+        if plan: audio = mix(plan, dur)
+    cmd = ['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i','frames/f_%05d.png']
+    if audio: cmd += ['-i', audio, '-c:a','aac','-b:a','192k','-shortest']
+    out = 'preview.mp4' if PREVIEW else 'out.mp4'
+    cmd += ['-c:v','libx264','-pix_fmt','yuv420p','-crf','18','-movflags','+faststart', out]
+    subprocess.run(cmd, check=True)
+asyncio.run(main())
+```
+- Pakai: `RATIO=9:16 python3 render.py` untuk final (tambah `NOSFX=1` jika tanpa suara). Preview hanya jika diminta (`PREVIEW=1`). Hapus folder frames/ setiap kali scene.html berubah.
+
+## 12. HEMAT KUOTA DAN LANJUT
+- Jangan menampilkan storyboard, manifest panjang, atau semua frame. Cek 3-6 frame kunci saja.
+- Tulis scene.html dalam SATU file; untuk perbaikan kecil, edit bagian yang berubah, jangan menulis ulang seluruhnya.
+- Simpan progres di progress.json (langkah yang sudah selesai). Jika giliran terpotong ata
