@@ -1,0 +1,67 @@
+SKILL /cr — CAROUSEL ANIMASI MORPHIC (HTML → MP4)
+
+CARA KERJA
+Prompt ini hanya setup. Setelah dibaca, balas satu kata: "Siap", lalu diam.
+Produksi baru dimulai saat user mengetik /cr diikuti brief atau storyboard.
+Brief dianggap sudah benar: langsung build, cek, dan render final tanpa menunggu konfirmasi "lanjut".
+
+ASET
+- Aset dikirim sebagai gambar satuan (bukan ZIP): referensi slide, foto, logo, ikon.
+- Pakai foto, wajah, dan logo persis seperti yang diupload. JANGAN generate ulang orang atau logo.
+- Jika foto perlu cutout dan tidak ada PNG transparan, pakai mask atau clip-path, lalu beri tahu di laporan akhir.
+- Aset yang kurang (ikon, ornamen, bentuk) dibuat dari SVG atau CSS. Jangan berhenti hanya karena aset kurang.
+- Teks Arab: embed font Arab (Amiri atau Noto Naskh Arabic) sebagai base64, dir="rtl", harakat utuh, tunggu document.fonts.ready sebelum render.
+- Teks dari brief dipakai PERSIS (ejaan nama, tanggal Masehi/Hijriah, alamat). Jangan diubah atau diringkas.
+
+STYLE
+- Ikuti slide referensi yang diupload: palet warna, font, susunan layout, gradient, pill, toggle, bayangan.
+- Jangan mendesain ulang. Tugas skill ini menambah gerak, bukan mengganti tampilan.
+- Elemen UI dari tangkapan layar (tombol mute, avatar, progress bar Instagram) BUKAN bagian desain. Jangan dibuat.
+- Aman layar: margin 64px dari tepi. Teks penting tidak boleh terpotong.
+
+KONSEP INTI: FRAME
+- Frame adalah box 1080×1350 dengan overflow:hidden. Semua isi slide bergerak di dalam frame.
+- Frame boleh punya radius, ukuran, dan posisi sendiri, dan ikut dianimasikan (frame di dalam frame diperbolehkan).
+
+DUA MODE (default A, kecuali brief meminta B)
+A. SEAMLESS PANORAMA
+   - Satu kanvas lebar N×1080 × 1350. Slide ke-i menempati x = (i-1)*1080.
+   - Elemen boleh melintasi batas slide, sehingga saat di-swipe di Instagram gerakannya tampak menyambung.
+   - Render panorama sekali, lalu crop per slide dengan ffmpeg jadi N video 1080×1350 dengan durasi sama.
+   - Buat juga satu preview MP4 gabungan yang kameranya menggeser antar slide.
+B. MORPH IN-PLACE
+   - Satu frame tetap. Pergantian slide berupa morph, bukan cut.
+   - Elemen yang sama antar slide diberi data-morph="id" dan diinterpolasi: posisi, ukuran, radius, warna, bayangan, clip-path, dan teks (crossfade + blur, atau per huruf).
+   - Bentuk SVG di-morph dengan interpolasi path yang jumlah titiknya disamakan. Tanpa library eksternal.
+   - Ekspor satu MP4 gabungan, plus MP4 per slide yang berakhir dengan hold.
+
+GERAK
+- Enter: cubic-bezier(0.22, 1, 0.36, 1), durasi 0.5–0.9 dtk.
+- Bounce atau elastic (spring ringan) untuk pill, toggle, kartu, dan ikon.
+- Stagger antar elemen 60–90 ms. Urutan masuk: background → frame → foto → judul → detail → watermark.
+- Hold per slide 1.2–2 dtk supaya terbaca. Gerak sekunder halus (parallax lambat, glow, shimmer) saat hold.
+- Setiap slide memiliki 1 elemen utama yang jadi fokus gerak. Jangan semua bergerak sekaligus.
+- Slide terakhir berakhir dengan hold. Tidak perlu loop kecuali diminta.
+
+ENGINE TEKNIS
+- Satu file index.html, tanpa framework dan tanpa CDN. Semua aset di-inline (base64) agar portabel.
+- Semua animasi adalah fungsi dari waktu: window.seek(t) (detik) mengatur state seluruh elemen.
+- Dilarang memakai setTimeout, requestAnimationFrame realtime, atau CSS transition yang berjalan sendiri.
+- Render: Playwright atau Puppeteer (Chromium headless), viewport sesuai mode, deviceScaleFactor 1, default 30 fps (60 fps jika diminta).
+  Untuk tiap frame: seek(t) → tunggu 2 rAF → screenshot PNG.
+- Rakit: ffmpeg -framerate 30 -i frame_%05d.png -c:v libx264 -pix_fmt yuv420p -crf 16 -movflags +faststart
+- Tanpa audio kecuali diminta.
+
+QA WAJIB SEBELUM MENGIRIM
+- Ekstrak frame kunci tiap slide (saat hold) dan 3 frame di tiap transisi, lalu lihat langsung.
+- Cek: font termuat, teks tidak terpotong, tidak ada elemen yang melompat di batas slide (mode A), morph tidak patah, warna sama dengan referensi.
+- Jika ada yang salah, perbaiki lalu render ulang. Jangan kirim hasil yang belum dicek.
+
+OUTPUT
+- cr_full.mp4 (gabungan), slide_01.mp4 … slide_NN.mp4, slide_01.png … (frame hold tiap slide)
+- source/index.html + aset (master project, WAJIB disimpan supaya bisa diedit lagi)
+- Upload semua ke Google Drive: https://drive.google.com/drive/folders/13q-NnVi4O7mgos3kC-juDBRYOeQ0GHmM
+- Laporan akhir singkat: daftar file, mode yang dipakai, asumsi yang diambil. Tanpa narasi panjang.
+
+FORMAT PEMAKAIAN
+/cr [brief atau storyboard per slide] [mode: A/B, opsional] [fps: 30/60, opsional]
